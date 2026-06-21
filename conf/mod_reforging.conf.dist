@@ -33,3 +33,190 @@ Reforging.ReforgeableStats = 6,13,14,31,32,36,37
 #
 
 Reforging.Percentage = 40
+
+###################################################################################################
+# Reforging Cost System
+###################################################################################################
+#
+#    Reforging.Cost.Enable
+#        Description: Enable cost for reforging items
+#        Default:     0 - Disabled
+#                     1 - Enabled
+#
+
+Reforging.Cost.Enable = 0
+
+#
+#    Reforging.Cost.Quality0.Currency (Poor - Grey)
+#    Reforging.Cost.Quality1.Currency (Normal - White)
+#    Reforging.Cost.Quality2.Currency (Uncommon - Green)
+#    Reforging.Cost.Quality3.Currency (Rare - Blue)
+#    Reforging.Cost.Quality4.Currency (Epic - Purple)
+#    Reforging.Cost.Quality5.Currency (Legendary - Orange)
+#        Description: Currency type for reforging cost. 0 = Gold (copper), any other value = Item entry ID used as token.
+#        Default:     0 (Gold)
+#
+
+Reforging.Cost.Quality0.Currency = 0
+Reforging.Cost.Quality1.Currency = 0
+Reforging.Cost.Quality2.Currency = 0
+Reforging.Cost.Quality3.Currency = 0
+Reforging.Cost.Quality4.Currency = 0
+Reforging.Cost.Quality5.Currency = 0
+
+#
+#    Reforging.Cost.Quality0.Amount (Poor - Grey)
+#    Reforging.Cost.Quality1.Amount (Normal - White)
+#    Reforging.Cost.Quality2.Amount (Uncommon - Green)
+#    Reforging.Cost.Quality3.Amount (Rare - Blue)
+#    Reforging.Cost.Quality4.Amount (Epic - Purple)
+#    Reforging.Cost.Quality5.Amount (Legendary - Orange)
+#        Description: Cost amount. If currency is 0 (Gold), this is in copper (e.g. 500000 = 50g).
+#                     If currency is an item entry, this is the number of tokens required.
+#        Default:     0 for poor/normal/uncommon, 500000 (50g) for rare, 1000000 (100g) for epic, 2000000 (200g) for legendary
+#
+
+Reforging.Cost.Quality0.Amount = 0
+Reforging.Cost.Quality1.Amount = 0
+Reforging.Cost.Quality2.Amount = 0
+Reforging.Cost.Quality3.Amount = 500000
+Reforging.Cost.Quality4.Amount = 1000000
+Reforging.Cost.Quality5.Amount = 2000000
+
+#
+#    Reforging.Cost.Slot.XXX.Currency
+#        Description: Per-slot currency override. If set to a non-zero item entry, that slot will
+#                     use this token instead of the quality-based currency. The amount is still
+#                     taken from the quality-based amount config.
+#                     Set to 0 to use the quality-based currency (default).
+#
+#        Available slots: Head, Neck, Shoulders, Shirt, Chest, Waist, Legs, Feet,
+#                         Wrists, Hands, Finger (both slots), Trinket (both slots),
+#                         Back, MainHand, OffHand, Ranged, Tabard
+#
+
+Reforging.Cost.Slot.Head.Currency = 0
+Reforging.Cost.Slot.Neck.Currency = 0
+Reforging.Cost.Slot.Shoulders.Currency = 0
+Reforging.Cost.Slot.Shirt.Currency = 0
+Reforging.Cost.Slot.Chest.Currency = 0
+Reforging.Cost.Slot.Waist.Currency = 0
+Reforging.Cost.Slot.Legs.Currency = 0
+Reforging.Cost.Slot.Feet.Currency = 0
+Reforging.Cost.Slot.Wrists.Currency = 0
+Reforging.Cost.Slot.Hands.Currency = 0
+Reforging.Cost.Slot.Finger.Currency = 0
+Reforging.Cost.Slot.Trinket.Currency = 0
+Reforging.Cost.Slot.Back.Currency = 0
+Reforging.Cost.Slot.MainHand.Currency = 0
+Reforging.Cost.Slot.OffHand.Currency = 0
+Reforging.Cost.Slot.Ranged.Currency = 0
+Reforging.Cost.Slot.Tabard.Currency = 0
+
+###################################################################################################
+# Reforging Menu Text (localization support)
+###################################################################################################
+#    All menu display text can be overridden here. Defaults are in Chinese.
+#    Change these to any language you want.
+#
+
+Reforging.Text.StatsHeader = "可重铸属性: "
+Reforging.Text.None = "无"
+Reforging.Text.NoItem = "无物品"
+Reforging.Text.AlreadyReforged = "已重铸"
+Reforging.Text.NotReforgeable = "不可重铸"
+Reforging.Text.Reforgeable = "可重铸"
+Reforging.Text.GoBack = "返回"
+Reforging.Text.NoItemInSlot = "该槽位没有装备物品。"
+Reforging.Text.AlreadyReforgedMsg = "该物品已经重铸过了。"
+Reforging.Text.NotReforgeableMsg = "该物品不可重铸。"
+Reforging.Text.Reforge = "重铸 "
+Reforging.Text.WillTake = "将从 "
+Reforging.Text.ValueAfter = " 重铸后的值: "
+Reforging.Text.ConfirmReforge = "你确定要重铸这件物品吗？"
+Reforging.Text.Reforged = "已重铸"
+Reforging.Text.NotReforged = "未重铸"
+Reforging.Text.Restore = "[还原]"
+Reforging.Text.ConfirmRestore = "你确定吗？"
+Reforging.Text.NotAvailable = "不可用"
+Reforging.Text.SelectSlot = "选择要重铸的装备栏位"
+Reforging.Text.RemoveReforge = "移除物品的重铸"
+Reforging.Text.Nevermind = "算了"
+Reforging.Text.ReforgeFail = "无法重铸物品，请重试。"
+Reforging.Text.CostInsufficient = "你没有足够的货币来重铸这件物品。"
+Reforging.Text.CostInfo = "重铸花费: "
+
+###################################################################################################
+# Reforging Slot Names (localization support)
+###################################################################################################
+#    Slot display names. Defaults are in Chinese.
+#
+
+Reforging.Text.Slot.Head = "头部"
+Reforging.Text.Slot.Neck = "颈部"
+Reforging.Text.Slot.Shoulders = "肩部"
+Reforging.Text.Slot.Shirt = "衬衣"
+Reforging.Text.Slot.Chest = "胸部"
+Reforging.Text.Slot.Waist = "腰部"
+Reforging.Text.Slot.Legs = "腿部"
+Reforging.Text.Slot.Feet = "脚部"
+Reforging.Text.Slot.Wrists = "手腕"
+Reforging.Text.Slot.Hands = "手套"
+Reforging.Text.Slot.Finger1 = "手指1"
+Reforging.Text.Slot.Finger2 = "手指2"
+Reforging.Text.Slot.Trinket1 = "饰品1"
+Reforging.Text.Slot.Trinket2 = "饰品2"
+Reforging.Text.Slot.Back = "背部"
+Reforging.Text.Slot.MainHand = "主手"
+Reforging.Text.Slot.OffHand = "副手"
+Reforging.Text.Slot.Ranged = "远程"
+Reforging.Text.Slot.Tabard = "战袍"
+
+###################################################################################################
+# Reforging Stat Type Names (localization support)
+###################################################################################################
+#    Stat names used in reforge menus. Defaults are in Chinese.
+#    These correspond to ItemModType enum values (e.g. ITEM_MOD_SPIRIT = 6).
+#
+
+Reforging.Text.Stat.Mana = "法力值"
+Reforging.Text.Stat.Health = "生命值"
+Reforging.Text.Stat.Agility = "敏捷"
+Reforging.Text.Stat.Strength = "力量"
+Reforging.Text.Stat.Intellect = "智力"
+Reforging.Text.Stat.Spirit = "精神"
+Reforging.Text.Stat.Stamina = "耐力"
+Reforging.Text.Stat.DefenseRating = "防御等级"
+Reforging.Text.Stat.DodgeRating = "躲闪等级"
+Reforging.Text.Stat.ParryRating = "招架等级"
+Reforging.Text.Stat.BlockRating = "格挡等级"
+Reforging.Text.Stat.MeleeHitRating = "近战命中等级"
+Reforging.Text.Stat.RangedHitRating = "远程命中等级"
+Reforging.Text.Stat.SpellHitRating = "法术命中等级"
+Reforging.Text.Stat.MeleeCritRating = "近战暴击等级"
+Reforging.Text.Stat.RangedCritRating = "远程暴击等级"
+Reforging.Text.Stat.SpellCritRating = "法术暴击等级"
+Reforging.Text.Stat.MeleeHitTakenRating = "近战命中减免等级"
+Reforging.Text.Stat.RangedHitTakenRating = "远程命中减免等级"
+Reforging.Text.Stat.SpellHitTakenRating = "法术命中减免等级"
+Reforging.Text.Stat.MeleeCritTakenRating = "近战暴击减免等级"
+Reforging.Text.Stat.RangedCritTakenRating = "远程暴击减免等级"
+Reforging.Text.Stat.SpellCritTakenRating = "法术暴击减免等级"
+Reforging.Text.Stat.MeleeHasteRating = "近战急速等级"
+Reforging.Text.Stat.RangedHasteRating = "远程急速等级"
+Reforging.Text.Stat.SpellHasteRating = "法术急速等级"
+Reforging.Text.Stat.HitRating = "命中等级"
+Reforging.Text.Stat.CritRating = "暴击等级"
+Reforging.Text.Stat.HitTakenRating = "命中减免等级"
+Reforging.Text.Stat.CritTakenRating = "暴击减免等级"
+Reforging.Text.Stat.ResilienceRating = "韧性等级"
+Reforging.Text.Stat.HasteRating = "急速等级"
+Reforging.Text.Stat.ExpertiseRating = "精准等级"
+Reforging.Text.Stat.AttackPower = "攻击强度"
+Reforging.Text.Stat.RangedAttackPower = "远程攻击强度"
+Reforging.Text.Stat.ManaRegen = "法力回复"
+Reforging.Text.Stat.ArmorPenetration = "护甲穿透等级"
+Reforging.Text.Stat.SpellPower = "法术强度"
+Reforging.Text.Stat.HealthRegen = "生命回复"
+Reforging.Text.Stat.SpellPenetration = "法术穿透"
+Reforging.Text.Stat.BlockValue = "格挡值"

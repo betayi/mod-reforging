@@ -26,7 +26,7 @@ private:
 
         const std::vector<uint32>& reforgeableStats = sItemReforge->GetReforgeableStats();
         std::ostringstream oss;
-        oss << "Reforgeable stats: ";
+        oss << sItemReforge->GettextStatsHeader();
         bool hasStats = false;
         for (uint32 i = 0; i < reforgeableStats.size(); i++)
         {
@@ -36,7 +36,7 @@ private:
                 oss << ", ";
         }
         if (!hasStats)
-            oss << ItemReforge::TextRed("NONE");
+            oss << ItemReforge::TextRed(sItemReforge->GettextNone());
 
         AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, oss.str(), GOSSIP_SENDER_MAIN + 1, EQUIPMENT_SLOT_END);
 
@@ -48,21 +48,30 @@ private:
             oss << sItemReforge->GetSlotName(slot);
 
             if (item == nullptr)
-                oss << " [" << ItemReforge::TextRed("NO ITEM") << "]";
+                oss << " [" << ItemReforge::TextRed(sItemReforge->GettextNoItem()) << "]";
             else
             {
                 if (sItemReforge->IsAlreadyReforged(item))
-                    oss << " [" << ItemReforge::TextRed("ALREADY REFORGED") << "]";
+                    oss << " [" << ItemReforge::TextRed(sItemReforge->GettextAlreadyReforged()) << "]";
                 else if (!sItemReforge->IsReforgeable(player, item))
-                    oss << " [" << ItemReforge::TextRed("NOT REFORGEABLE") << "]";
+                    oss << " [" << ItemReforge::TextRed(sItemReforge->GettextNotReforgeable()) << "]";
                 else
-                    oss << " [" << ItemReforge::TextGreen("REFORGEABLE") << "]";
+                {
+                    oss << " [" << ItemReforge::TextGreen(sItemReforge->GettextReforgeable()) << "]";
+                    // Show cost info if cost is enabled
+                    if (sItemReforge->IsCostEnabled())
+                    {
+                        std::string costDesc = sItemReforge->GetCostDescription(item);
+                        if (!costDesc.empty())
+                            oss << " (" << sItemReforge->GettextCostInfo() << costDesc << ")";
+                    }
+                }
             }
 
             AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, oss.str(), GOSSIP_SENDER_MAIN + 1, slot);
         }
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go Back", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextGoBack(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
@@ -72,17 +81,26 @@ private:
     {
         if (item == nullptr)
         {
-            ItemReforge::SendMessage(player, "There is no equipped item in that slot.");
+            ItemReforge::SendMessage(player, sItemReforge->GettextNoItemInSlot());
             return false;
         }
         else if (sItemReforge->IsAlreadyReforged(item))
         {
-            ItemReforge::SendMessage(player, "This item was already reforged.");
+            ItemReforge::SendMessage(player, sItemReforge->GettextAlreadyReforgedMsg());
             return false;
         }
         else if (!sItemReforge->IsReforgeable(player, item))
         {
-            ItemReforge::SendMessage(player, "This item is not reforgeable.");
+            ItemReforge::SendMessage(player, sItemReforge->GettextNotReforgeableMsg());
+            return false;
+        }
+        else if (!sItemReforge->CanAffordReforge(player, item))
+        {
+            std::string msg = sItemReforge->GettextCostInsufficient();
+            std::string costDesc = sItemReforge->GetCostDescription(item);
+            if (!costDesc.empty())
+                msg += " " + sItemReforge->GettextCostInfo() + costDesc;
+            ItemReforge::SendMessage(player, msg);
             return false;
         }
 
@@ -100,11 +118,19 @@ private:
 
         AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, ItemReforge::ItemLinkForUI(item, player), GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF + 100);
 
+        // Show cost info
+        if (sItemReforge->IsCostEnabled())
+        {
+            std::string costDesc = sItemReforge->GetCostDescription(item);
+            if (!costDesc.empty())
+                AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextCostInfo() + costDesc, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF + 200);
+        }
+
         std::vector<_ItemStat> itemStats = sItemReforge->LoadItemStatInfo(item, true);
         for (const _ItemStat& stat : itemStats)
-            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, "Reforge " + sItemReforge->StatTypeToString(stat.ItemStatType), GOSSIP_SENDER_MAIN + 2, stat.ItemStatType);
+            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, sItemReforge->GettextReforge() + sItemReforge->StatTypeToString(stat.ItemStatType), GOSSIP_SENDER_MAIN + 2, stat.ItemStatType);
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go Back", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextGoBack(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
 
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
@@ -130,11 +156,17 @@ private:
         uint32 taken = sItemReforge->CalculateReforgePct(toReforgeStat->ItemStatValue);
         uint32 newVal = toReforgeStat->ItemStatValue - taken;
         std::ostringstream oss;
-        oss << "Will take " << ItemReforge::TextRed(Acore::ToString((uint32)sItemReforge->GetPercentage()) + "%") << " from " << sItemReforge->StatTypeToString(stat);
+        oss << sItemReforge->GettextWillTake() << ItemReforge::TextRed(Acore::ToString((uint32)sItemReforge->GetPercentage()) + "%") << " " << sItemReforge->StatTypeToString(stat) << " 中取出";
+        if (sItemReforge->IsCostEnabled())
+        {
+            std::string costDesc = sItemReforge->GetCostDescription(item);
+            if (!costDesc.empty())
+                oss << " (" << sItemReforge->GettextCostInfo() << costDesc << ")";
+        }
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, oss.str(), GOSSIP_SENDER_MAIN + 2, stat);
 
         oss.str("");
-        oss << sItemReforge->StatTypeToString(stat) << " value after reforge: ";
+        oss << sItemReforge->StatTypeToString(stat) << sItemReforge->GettextValueAfter();
         oss << ItemReforge::TextRed(Acore::ToString(newVal)) << " (-" << Acore::ToString(taken) << ")";
         AddGossipItemFor(player, GOSSIP_ICON_CHAT, oss.str(), GOSSIP_SENDER_MAIN + 2, stat);
 
@@ -143,10 +175,10 @@ private:
             if (sItemReforge->FindItemStat(itemStats, rstat) != nullptr)
                 continue;
 
-            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, ItemReforge::TextGreen("+" + Acore::ToString(taken) + " " + sItemReforge->StatTypeToString(rstat)), GOSSIP_SENDER_MAIN + 10 + stat, rstat, "Are you sure you want to reforge this item?", 0, false);
+            AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, ItemReforge::TextGreen("+" + Acore::ToString(taken) + " " + sItemReforge->StatTypeToString(rstat)), GOSSIP_SENDER_MAIN + 10 + stat, rstat, sItemReforge->GettextConfirmReforge(), 0, false);
         }
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go Back", GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF + 100);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextGoBack(), GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF + 100);
 
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
@@ -164,19 +196,19 @@ private:
             oss << sItemReforge->GetSlotName(slot);
 
             if (item == nullptr)
-                oss << " [" << ItemReforge::TextRed("NO ITEM") << "]";
+                oss << " [" << ItemReforge::TextRed(sItemReforge->GettextNoItem()) << "]";
             else
             {
                 if (sItemReforge->IsAlreadyReforged(item))
-                    oss << " [" << ItemReforge::TextGreen("REFORGED") << "]";
+                    oss << " [" << ItemReforge::TextGreen(sItemReforge->GettextReforged()) << "]";
                 else
-                    oss << " [" << ItemReforge::TextRed("NOT REFORGED") << "]";
+                    oss << " [" << ItemReforge::TextRed(sItemReforge->GettextNotReforged()) << "]";
             }
 
             AddGossipItemFor(player, GOSSIP_ICON_MONEY_BAG, oss.str(), GOSSIP_SENDER_MAIN + 3, slot);
         }
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go Back", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextGoBack(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF);
 
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
@@ -203,16 +235,16 @@ private:
             return CloseGossip(player, false);
 
         std::ostringstream oss;
-        oss << "Will restore " << sItemReforge->StatTypeToString(decreasedStat->ItemStatType) << " to " << ItemReforge::TextGreen(Acore::ToString(decreasedStat->ItemStatValue));
+        oss << sItemReforge->GettextWillTake() << " " << sItemReforge->StatTypeToString(decreasedStat->ItemStatType) << " 恢复为 " << ItemReforge::TextGreen(Acore::ToString(decreasedStat->ItemStatValue));
         AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, oss.str(), GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
 
         oss.str("");
         oss << ItemReforge::TextRed("-" + Acore::ToString(reforging->stat_value) + " " + sItemReforge->StatTypeToString(reforging->stat_increase));
         AddGossipItemFor(player, GOSSIP_ICON_INTERACT_1, oss.str(), GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF);
 
-        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, ItemReforge::TextRed("[RESTORE]"), GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF + 1, "Are you sure?", 0, false);
+        AddGossipItemFor(player, GOSSIP_ICON_BATTLE, ItemReforge::TextRed(sItemReforge->GettextRestore()), GOSSIP_SENDER_MAIN + 4, GOSSIP_ACTION_INFO_DEF + 1, sItemReforge->GettextConfirmRestore(), 0, false);
 
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Go Back", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextGoBack(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
 
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
@@ -223,13 +255,13 @@ public:
     bool OnGossipHello(Player* player, Creature* creature) override
     {
         if (!sItemReforge->GetEnabled())
-            AddGossipItemFor(player, GOSSIP_ICON_CHAT, "|cffb50505NOT AVAILABLE|r", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+            AddGossipItemFor(player, GOSSIP_ICON_CHAT, ItemReforge::TextRed(sItemReforge->GettextNotAvailable()), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         else
         {
-            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Select equipment slot to reforge", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
-            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, "Remove reforge from items", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, sItemReforge->GettextSelectSlot(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 1);
+            AddGossipItemFor(player, GOSSIP_ICON_BATTLE, sItemReforge->GettextRemoveReforge(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 3);
         }
-        AddGossipItemFor(player, GOSSIP_ICON_CHAT, "Nevermind", GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
+        AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextNevermind(), GOSSIP_SENDER_MAIN, GOSSIP_ACTION_INFO_DEF + 2);
         SendGossipMenuFor(player, DEFAULT_GOSSIP_MESSAGE, creature->GetGUID());
         return true;
     }
@@ -303,10 +335,20 @@ public:
         {
             uint32 decreaseStat = sender - (GOSSIP_SENDER_MAIN + 10);
             uint32 increaseStat = action;
-            if (!sItemReforge->Reforge(player, itemMap[player->GetGUID().GetCounter()], decreaseStat, increaseStat))
-                ItemReforge::SendMessage(player, "Could not reforge item, try again.");
+            ObjectGuid itemGuid = itemMap[player->GetGUID().GetCounter()];
+            Item* item = player->GetItemByGuid(itemGuid);
+            if (!sItemReforge->CanAffordReforge(player, item))
+            {
+                ItemReforge::SendMessage(player, sItemReforge->GettextCostInsufficient());
+                return CloseGossip(player);
+            }
+            if (!sItemReforge->Reforge(player, itemGuid, decreaseStat, increaseStat))
+                ItemReforge::SendMessage(player, sItemReforge->GettextReforgeFail());
             else
+            {
+                sItemReforge->ChargeReforgeCost(player, item);
                 sItemReforge->VisualFeedback(player);
+            }
 
             return CloseGossip(player);
         }

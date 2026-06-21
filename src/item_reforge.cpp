@@ -15,7 +15,111 @@
 ItemReforge::ItemReforge()
 {
     enabled = true;
+    costEnabled = false;
     percentage = PERCENTAGE_DEFAULT;
+
+    // Initialize cost defaults
+    for (uint32 i = 0; i < MAX_QUALITY_LEVELS; i++)
+    {
+        costPerQuality[i].currencyEntry = 0;
+        costPerQuality[i].amount = 0;
+    }
+    for (uint32 i = 0; i < MAX_EQUIPMENT_SLOTS; i++)
+    {
+        slotCurrencyOverride[i] = 0;
+        slotNames[i] = "";
+    }
+
+    // Default Chinese slot names
+    slotNames[EQUIPMENT_SLOT_HEAD]      = "头部";
+    slotNames[EQUIPMENT_SLOT_NECK]      = "颈部";
+    slotNames[EQUIPMENT_SLOT_SHOULDERS] = "肩部";
+    slotNames[EQUIPMENT_SLOT_BODY]      = "衬衣";
+    slotNames[EQUIPMENT_SLOT_CHEST]     = "胸部";
+    slotNames[EQUIPMENT_SLOT_WAIST]     = "腰部";
+    slotNames[EQUIPMENT_SLOT_LEGS]      = "腿部";
+    slotNames[EQUIPMENT_SLOT_FEET]      = "脚部";
+    slotNames[EQUIPMENT_SLOT_WRISTS]    = "手腕";
+    slotNames[EQUIPMENT_SLOT_HANDS]     = "手套";
+    slotNames[EQUIPMENT_SLOT_FINGER1]   = "手指1";
+    slotNames[EQUIPMENT_SLOT_FINGER2]   = "手指2";
+    slotNames[EQUIPMENT_SLOT_TRINKET1]  = "饰品1";
+    slotNames[EQUIPMENT_SLOT_TRINKET2]  = "饰品2";
+    slotNames[EQUIPMENT_SLOT_BACK]      = "背部";
+    slotNames[EQUIPMENT_SLOT_MAINHAND]  = "主手";
+    slotNames[EQUIPMENT_SLOT_OFFHAND]   = "副手";
+    slotNames[EQUIPMENT_SLOT_RANGED]    = "远程";
+    slotNames[EQUIPMENT_SLOT_TABARD]    = "战袍";
+
+    // Default Chinese stat type names
+    statTypeNames[ITEM_MOD_MANA]                    = "法力值";
+    statTypeNames[ITEM_MOD_HEALTH]                  = "生命值";
+    statTypeNames[ITEM_MOD_AGILITY]                 = "敏捷";
+    statTypeNames[ITEM_MOD_STRENGTH]                = "力量";
+    statTypeNames[ITEM_MOD_INTELLECT]              = "智力";
+    statTypeNames[ITEM_MOD_SPIRIT]                 = "精神";
+    statTypeNames[ITEM_MOD_STAMINA]                = "耐力";
+    statTypeNames[ITEM_MOD_DEFENSE_SKILL_RATING]   = "防御等级";
+    statTypeNames[ITEM_MOD_DODGE_RATING]           = "躲闪等级";
+    statTypeNames[ITEM_MOD_PARRY_RATING]           = "招架等级";
+    statTypeNames[ITEM_MOD_BLOCK_RATING]           = "格挡等级";
+    statTypeNames[ITEM_MOD_HIT_MELEE_RATING]       = "近战命中等级";
+    statTypeNames[ITEM_MOD_HIT_RANGED_RATING]      = "远程命中等级";
+    statTypeNames[ITEM_MOD_HIT_SPELL_RATING]       = "法术命中等级";
+    statTypeNames[ITEM_MOD_CRIT_MELEE_RATING]      = "近战暴击等级";
+    statTypeNames[ITEM_MOD_CRIT_RANGED_RATING]     = "远程暴击等级";
+    statTypeNames[ITEM_MOD_CRIT_SPELL_RATING]      = "法术暴击等级";
+    statTypeNames[ITEM_MOD_HIT_TAKEN_MELEE_RATING] = "近战命中减免等级";
+    statTypeNames[ITEM_MOD_HIT_TAKEN_RANGED_RATING]= "远程命中减免等级";
+    statTypeNames[ITEM_MOD_HIT_TAKEN_SPELL_RATING] = "法术命中减免等级";
+    statTypeNames[ITEM_MOD_CRIT_TAKEN_MELEE_RATING]= "近战暴击减免等级";
+    statTypeNames[ITEM_MOD_CRIT_TAKEN_RANGED_RATING]="远程暴击减免等级";
+    statTypeNames[ITEM_MOD_CRIT_TAKEN_SPELL_RATING] = "法术暴击减免等级";
+    statTypeNames[ITEM_MOD_HASTE_MELEE_RATING]     = "近战急速等级";
+    statTypeNames[ITEM_MOD_HASTE_RANGED_RATING]    = "远程急速等级";
+    statTypeNames[ITEM_MOD_HASTE_SPELL_RATING]     = "法术急速等级";
+    statTypeNames[ITEM_MOD_HIT_RATING]             = "命中等级";
+    statTypeNames[ITEM_MOD_CRIT_RATING]            = "暴击等级";
+    statTypeNames[ITEM_MOD_HIT_TAKEN_RATING]       = "命中减免等级";
+    statTypeNames[ITEM_MOD_CRIT_TAKEN_RATING]      = "暴击减免等级";
+    statTypeNames[ITEM_MOD_RESILIENCE_RATING]      = "韧性等级";
+    statTypeNames[ITEM_MOD_HASTE_RATING]           = "急速等级";
+    statTypeNames[ITEM_MOD_EXPERTISE_RATING]       = "精准等级";
+    statTypeNames[ITEM_MOD_ATTACK_POWER]           = "攻击强度";
+    statTypeNames[ITEM_MOD_RANGED_ATTACK_POWER]    = "远程攻击强度";
+    statTypeNames[ITEM_MOD_MANA_REGENERATION]      = "法力回复";
+    statTypeNames[ITEM_MOD_ARMOR_PENETRATION_RATING]="护甲穿透等级";
+    statTypeNames[ITEM_MOD_SPELL_POWER]            = "法术强度";
+    statTypeNames[ITEM_MOD_HEALTH_REGEN]           = "生命回复";
+    statTypeNames[ITEM_MOD_SPELL_PENETRATION]      = "法术穿透";
+    statTypeNames[ITEM_MOD_BLOCK_VALUE]            = "格挡值";
+
+    // Default Chinese text
+    textStatsHeader      = "可重铸属性: ";
+    textNone             = "无";
+    textNoItem           = "无物品";
+    textAlreadyReforged  = "已重铸";
+    textNotReforgeable   = "不可重铸";
+    textReforgeable      = "可重铸";
+    textGoBack           = "返回";
+    textNoItemInSlot     = "该槽位没有装备物品。";
+    textAlreadyReforgedMsg  = "该物品已经重铸过了。";
+    textNotReforgeableMsg   = "该物品不可重铸。";
+    textReforge          = "重铸 ";
+    textWillTake         = "将从 ";
+    textValueAfter       = " 重铸后的值: ";
+    textConfirmReforge   = "你确定要重铸这件物品吗？";
+    textReforged         = "已重铸";
+    textNotReforged      = "未重铸";
+    textRestore          = "[还原]";
+    textConfirmRestore   = "你确定吗？";
+    textNotAvailable     = "不可用";
+    textSelectSlot       = "选择要重铸的装备栏位";
+    textRemoveReforge    = "移除物品的重铸";
+    textNevermind        = "算了";
+    textReforgeFail      = "无法重铸物品，请重试。";
+    textCostInsufficient = "你没有足够的货币来重铸这件物品。";
+    textCostInfo         = "重铸花费: ";
 }
 
 ItemReforge::~ItemReforge() {}
@@ -71,6 +175,166 @@ float ItemReforge::GetPercentage() const
     return percentage;
 }
 
+void ItemReforge::SetCostEnabled(bool value)
+{
+    costEnabled = value;
+}
+
+bool ItemReforge::IsCostEnabled() const
+{
+    return costEnabled;
+}
+
+void ItemReforge::SetQualityCost(uint32 quality, uint32 currencyEntry, int32 amount)
+{
+    if (quality < MAX_QUALITY_LEVELS)
+    {
+        costPerQuality[quality].currencyEntry = currencyEntry;
+        costPerQuality[quality].amount = amount;
+    }
+}
+
+ItemReforge::CostConfig ItemReforge::GetQualityCost(uint32 quality) const
+{
+    if (quality < MAX_QUALITY_LEVELS)
+        return costPerQuality[quality];
+    CostConfig empty = { 0, 0 };
+    return empty;
+}
+
+void ItemReforge::SetSlotCurrencyOverride(uint8 slot, uint32 currencyEntry)
+{
+    if (slot < MAX_EQUIPMENT_SLOTS)
+        slotCurrencyOverride[slot] = currencyEntry;
+}
+
+uint32 ItemReforge::GetSlotCurrencyForItem(const Item* item) const
+{
+    if (!item)
+        return 0;
+    uint8 slot = item->GetSlot();
+    if (slot < MAX_EQUIPMENT_SLOTS && slotCurrencyOverride[slot] != 0)
+        return slotCurrencyOverride[slot];
+    return 0;
+}
+
+bool ItemReforge::CanAffordReforge(Player* player, const Item* item) const
+{
+    if (!item || !IsCostEnabled())
+        return true;
+
+    const ItemTemplate* proto = item->GetTemplate();
+    if (!proto)
+        return false;
+
+    uint32 quality = proto->Quality;
+    if (quality >= MAX_QUALITY_LEVELS)
+        return false;
+
+    CostConfig cost = costPerQuality[quality];
+
+    uint32 slotCurrency = GetSlotCurrencyForItem(item);
+    if (slotCurrency != 0)
+    {
+        // Slot override: check for specific token
+        cost.currencyEntry = slotCurrency;
+        // Use same amount from the quality cost config
+    }
+
+    if (cost.amount <= 0)
+        return true; // no cost
+
+    if (cost.currencyEntry == 0)
+    {
+        // Gold cost (amount in copper)
+        return player->GetMoney() >= (uint32)cost.amount;
+    }
+    else
+    {
+        // Token cost
+        return player->GetItemCount(cost.currencyEntry) >= (uint32)cost.amount;
+    }
+}
+
+std::string ItemReforge::GetCostDescription(const Item* item) const
+{
+    if (!item || !IsCostEnabled())
+        return "";
+
+    const ItemTemplate* proto = item->GetTemplate();
+    if (!proto)
+        return "";
+
+    uint32 quality = proto->Quality;
+    if (quality >= MAX_QUALITY_LEVELS)
+        return "";
+
+    CostConfig cost = costPerQuality[quality];
+
+    uint32 slotCurrency = GetSlotCurrencyForItem(item);
+    if (slotCurrency != 0)
+        cost.currencyEntry = slotCurrency;
+
+    if (cost.amount <= 0)
+        return "";
+
+    std::ostringstream oss;
+    if (cost.currencyEntry == 0)
+    {
+        // Gold
+        uint32 gold = cost.amount / 10000;
+        uint32 silver = (cost.amount % 10000) / 100;
+        uint32 copper = cost.amount % 100;
+        oss << gold << "金 " << silver << "银 " << copper << "铜";
+    }
+    else
+    {
+        // Token
+        const ItemTemplate* tokenProto = sObjectMgr->GetItemTemplate(cost.currencyEntry);
+        if (tokenProto)
+        {
+            oss << cost.amount << "x |c";
+            oss << std::hex << ItemQualityColors[tokenProto->Quality] << std::dec;
+            oss << "|Hitem:" << cost.currencyEntry << ":0:0:0:0:0:0:0:0:0|h[" << tokenProto->Name1 << "]|h|r";
+        }
+        else
+            oss << cost.amount << "x 物品(" << cost.currencyEntry << ")";
+    }
+    return oss.str();
+}
+
+void ItemReforge::ChargeReforgeCost(Player* player, const Item* item) const
+{
+    if (!item || !IsCostEnabled())
+        return;
+
+    const ItemTemplate* proto = item->GetTemplate();
+    if (!proto)
+        return;
+
+    uint32 quality = proto->Quality;
+    if (quality >= MAX_QUALITY_LEVELS)
+        return;
+
+    CostConfig cost = costPerQuality[quality];
+
+    uint32 slotCurrency = GetSlotCurrencyForItem(item);
+    if (slotCurrency != 0)
+        cost.currencyEntry = slotCurrency;
+
+    if (cost.amount <= 0)
+        return;
+
+    if (cost.currencyEntry == 0)
+    {
+        player->ModifyMoney(-cost.amount);
+    }
+    else
+    {
+        player->DestroyItemCount(cost.currencyEntry, cost.amount, true);
+    }
+}
+
 void ItemReforge::CleanupDB() const
 {
     CharacterDatabaseTransaction trans = CharacterDatabase.BeginTransaction();
@@ -110,6 +374,17 @@ void ItemReforge::LoadFromDB()
 
     LOG_INFO("server.loading", ">> Loaded {} item reforges in {} ms", reforgingDataMap.size(), GetMSTimeDiffToNow(oldMSTime));
     LOG_INFO("server.loading", " ");
+}
+
+void ItemReforge::SetSlotName(uint8 slot, const std::string& name)
+{
+    if (slot < MAX_EQUIPMENT_SLOTS)
+        slotNames[slot] = name;
+}
+
+void ItemReforge::SetStatTypeName(uint32 statType, const std::string& name)
+{
+    statTypeNames[statType] = name;
 }
 
 std::string ItemReforge::GetSlotIcon(uint8 slot, uint32 width, uint32 height, int x, int y) const
@@ -181,6 +456,9 @@ std::string ItemReforge::GetSlotIcon(uint8 slot, uint32 width, uint32 height, in
 
 std::string ItemReforge::GetSlotName(uint8 slot) const
 {
+    if (slot < MAX_EQUIPMENT_SLOTS && !slotNames[slot].empty())
+        return slotNames[slot];
+
     switch (slot)
     {
         case EQUIPMENT_SLOT_HEAD:
@@ -228,6 +506,11 @@ std::string ItemReforge::GetSlotName(uint8 slot) const
 
 std::string ItemReforge::StatTypeToString(uint32 statType) const
 {
+    // Check configurable names first
+    auto it = statTypeNames.find(statType);
+    if (it != statTypeNames.end() && !it->second.empty())
+        return it->second;
+
     static std::unordered_map<uint32, std::string> statTypeToStrMap = {
         {ITEM_MOD_MANA, "Mana"}, {ITEM_MOD_HEALTH, "Health"}, {ITEM_MOD_AGILITY, "Agility"},
         {ITEM_MOD_STRENGTH, "Strength"}, {ITEM_MOD_INTELLECT, "Intellect"}, {ITEM_MOD_SPIRIT, "Spirit"},
