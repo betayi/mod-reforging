@@ -35,7 +35,7 @@ Reforging.ReforgeableStats = 6,13,14,31,32,36,37
 Reforging.Percentage = 40
 
 ###################################################################################################
-# Reforging Cost System
+# Reforging Cost System (Per-Slot)
 ###################################################################################################
 #
 #    Reforging.Cost.Enable
@@ -47,71 +47,60 @@ Reforging.Percentage = 40
 Reforging.Cost.Enable = 0
 
 #
-#    Reforging.Cost.Quality0.Currency (Poor - Grey)
-#    Reforging.Cost.Quality1.Currency (Normal - White)
-#    Reforging.Cost.Quality2.Currency (Uncommon - Green)
-#    Reforging.Cost.Quality3.Currency (Rare - Blue)
-#    Reforging.Cost.Quality4.Currency (Epic - Purple)
-#    Reforging.Cost.Quality5.Currency (Legendary - Orange)
-#        Description: Currency type for reforging cost. 0 = Gold (copper), any other value = Item entry ID used as token.
+#    Reforging.Cost.Slot.XXX.Currency
+#        Description: Currency type for reforging this specific equipment slot.
+#                     0 = Gold (copper), any other value = Item entry ID used as token.
 #        Default:     0 (Gold)
 #
-
-Reforging.Cost.Quality0.Currency = 0
-Reforging.Cost.Quality1.Currency = 0
-Reforging.Cost.Quality2.Currency = 0
-Reforging.Cost.Quality3.Currency = 0
-Reforging.Cost.Quality4.Currency = 0
-Reforging.Cost.Quality5.Currency = 0
-
-#
-#    Reforging.Cost.Quality0.Amount (Poor - Grey)
-#    Reforging.Cost.Quality1.Amount (Normal - White)
-#    Reforging.Cost.Quality2.Amount (Uncommon - Green)
-#    Reforging.Cost.Quality3.Amount (Rare - Blue)
-#    Reforging.Cost.Quality4.Amount (Epic - Purple)
-#    Reforging.Cost.Quality5.Amount (Legendary - Orange)
+#    Reforging.Cost.Slot.XXX.Amount
 #        Description: Cost amount. If currency is 0 (Gold), this is in copper (e.g. 500000 = 50g).
 #                     If currency is an item entry, this is the number of tokens required.
-#        Default:     0 for poor/normal/uncommon, 500000 (50g) for rare, 1000000 (100g) for epic, 2000000 (200g) for legendary
+#                     Set to 0 to make this slot free to reforge.
+#        Default:     0 (no cost)
 #
-
-Reforging.Cost.Quality0.Amount = 0
-Reforging.Cost.Quality1.Amount = 0
-Reforging.Cost.Quality2.Amount = 0
-Reforging.Cost.Quality3.Amount = 500000
-Reforging.Cost.Quality4.Amount = 1000000
-Reforging.Cost.Quality5.Amount = 2000000
-
-#
-#    Reforging.Cost.Slot.XXX.Currency
-#        Description: Per-slot currency override. If set to a non-zero item entry, that slot will
-#                     use this token instead of the quality-based currency. The amount is still
-#                     taken from the quality-based amount config.
-#                     Set to 0 to use the quality-based currency (default).
-#
-#        Available slots: Head, Neck, Shoulders, Shirt, Chest, Waist, Legs, Feet,
-#                         Wrists, Hands, Finger (both slots), Trinket (both slots),
-#                         Back, MainHand, OffHand, Ranged, Tabard
+#    Available slots: Head, Neck, Shoulders, Shirt, Chest, Waist, Legs, Feet,
+#                     Wrists, Hands, Finger1, Finger2, Trinket1, Trinket2,
+#                     Back, MainHand, OffHand, Ranged, Tabard
 #
 
 Reforging.Cost.Slot.Head.Currency = 0
+Reforging.Cost.Slot.Head.Amount = 0
 Reforging.Cost.Slot.Neck.Currency = 0
+Reforging.Cost.Slot.Neck.Amount = 0
 Reforging.Cost.Slot.Shoulders.Currency = 0
+Reforging.Cost.Slot.Shoulders.Amount = 0
 Reforging.Cost.Slot.Shirt.Currency = 0
+Reforging.Cost.Slot.Shirt.Amount = 0
 Reforging.Cost.Slot.Chest.Currency = 0
+Reforging.Cost.Slot.Chest.Amount = 0
 Reforging.Cost.Slot.Waist.Currency = 0
+Reforging.Cost.Slot.Waist.Amount = 0
 Reforging.Cost.Slot.Legs.Currency = 0
+Reforging.Cost.Slot.Legs.Amount = 0
 Reforging.Cost.Slot.Feet.Currency = 0
+Reforging.Cost.Slot.Feet.Amount = 0
 Reforging.Cost.Slot.Wrists.Currency = 0
+Reforging.Cost.Slot.Wrists.Amount = 0
 Reforging.Cost.Slot.Hands.Currency = 0
-Reforging.Cost.Slot.Finger.Currency = 0
-Reforging.Cost.Slot.Trinket.Currency = 0
+Reforging.Cost.Slot.Hands.Amount = 0
+Reforging.Cost.Slot.Finger1.Currency = 0
+Reforging.Cost.Slot.Finger1.Amount = 0
+Reforging.Cost.Slot.Finger2.Currency = 0
+Reforging.Cost.Slot.Finger2.Amount = 0
+Reforging.Cost.Slot.Trinket1.Currency = 0
+Reforging.Cost.Slot.Trinket1.Amount = 0
+Reforging.Cost.Slot.Trinket2.Currency = 0
+Reforging.Cost.Slot.Trinket2.Amount = 0
 Reforging.Cost.Slot.Back.Currency = 0
+Reforging.Cost.Slot.Back.Amount = 0
 Reforging.Cost.Slot.MainHand.Currency = 0
+Reforging.Cost.Slot.MainHand.Amount = 0
 Reforging.Cost.Slot.OffHand.Currency = 0
+Reforging.Cost.Slot.OffHand.Amount = 0
 Reforging.Cost.Slot.Ranged.Currency = 0
+Reforging.Cost.Slot.Ranged.Amount = 0
 Reforging.Cost.Slot.Tabard.Currency = 0
+Reforging.Cost.Slot.Tabard.Amount = 0
 
 ###################################################################################################
 # Reforging Menu Text (localization support)

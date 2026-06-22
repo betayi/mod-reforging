@@ -19,14 +19,10 @@ ItemReforge::ItemReforge()
     percentage = PERCENTAGE_DEFAULT;
 
     // Initialize cost defaults
-    for (uint32 i = 0; i < MAX_QUALITY_LEVELS; i++)
-    {
-        costPerQuality[i].currencyEntry = 0;
-        costPerQuality[i].amount = 0;
-    }
     for (uint32 i = 0; i < MAX_EQUIPMENT_SLOTS; i++)
     {
-        slotCurrencyOverride[i] = 0;
+        slotCost[i].currencyEntry = 0;
+        slotCost[i].amount = 0;
         slotNames[i] = "";
     }
 
@@ -185,37 +181,21 @@ bool ItemReforge::IsCostEnabled() const
     return costEnabled;
 }
 
-void ItemReforge::SetQualityCost(uint32 quality, uint32 currencyEntry, int32 amount)
+void ItemReforge::SetSlotCost(uint8 slot, uint32 currencyEntry, int32 amount)
 {
-    if (quality < MAX_QUALITY_LEVELS)
+    if (slot < MAX_EQUIPMENT_SLOTS)
     {
-        costPerQuality[quality].currencyEntry = currencyEntry;
-        costPerQuality[quality].amount = amount;
+        slotCost[slot].currencyEntry = currencyEntry;
+        slotCost[slot].amount = amount;
     }
 }
 
-ItemReforge::CostConfig ItemReforge::GetQualityCost(uint32 quality) const
-{
-    if (quality < MAX_QUALITY_LEVELS)
-        return costPerQuality[quality];
-    CostConfig empty = { 0, 0 };
-    return empty;
-}
-
-void ItemReforge::SetSlotCurrencyOverride(uint8 slot, uint32 currencyEntry)
+ItemReforge::CostConfig ItemReforge::GetSlotCost(uint8 slot) const
 {
     if (slot < MAX_EQUIPMENT_SLOTS)
-        slotCurrencyOverride[slot] = currencyEntry;
-}
-
-uint32 ItemReforge::GetSlotCurrencyForItem(const Item* item) const
-{
-    if (!item)
-        return 0;
-    uint8 slot = item->GetSlot();
-    if (slot < MAX_EQUIPMENT_SLOTS && slotCurrencyOverride[slot] != 0)
-        return slotCurrencyOverride[slot];
-    return 0;
+        return slotCost[slot];
+    CostConfig empty = { 0, 0 };
+    return empty;
 }
 
 bool ItemReforge::CanAffordReforge(Player* player, const Item* item) const
@@ -223,23 +203,11 @@ bool ItemReforge::CanAffordReforge(Player* player, const Item* item) const
     if (!item || !IsCostEnabled())
         return true;
 
-    const ItemTemplate* proto = item->GetTemplate();
-    if (!proto)
+    uint8 slot = item->GetSlot();
+    if (slot >= MAX_EQUIPMENT_SLOTS)
         return false;
 
-    uint32 quality = proto->Quality;
-    if (quality >= MAX_QUALITY_LEVELS)
-        return false;
-
-    CostConfig cost = costPerQuality[quality];
-
-    uint32 slotCurrency = GetSlotCurrencyForItem(item);
-    if (slotCurrency != 0)
-    {
-        // Slot override: check for specific token
-        cost.currencyEntry = slotCurrency;
-        // Use same amount from the quality cost config
-    }
+    CostConfig cost = slotCost[slot];
 
     if (cost.amount <= 0)
         return true; // no cost
@@ -256,24 +224,16 @@ bool ItemReforge::CanAffordReforge(Player* player, const Item* item) const
     }
 }
 
-std::string ItemReforge::GetCostDescription(const Item* item) const
+std::string ItemReforge::GetCostDescription(const Item* item, const Player* player) const
 {
     if (!item || !IsCostEnabled())
         return "";
 
-    const ItemTemplate* proto = item->GetTemplate();
-    if (!proto)
+    uint8 slot = item->GetSlot();
+    if (slot >= MAX_EQUIPMENT_SLOTS)
         return "";
 
-    uint32 quality = proto->Quality;
-    if (quality >= MAX_QUALITY_LEVELS)
-        return "";
-
-    CostConfig cost = costPerQuality[quality];
-
-    uint32 slotCurrency = GetSlotCurrencyForItem(item);
-    if (slotCurrency != 0)
-        cost.currencyEntry = slotCurrency;
+    CostConfig cost = slotCost[slot];
 
     if (cost.amount <= 0)
         return "";
@@ -281,21 +241,49 @@ std::string ItemReforge::GetCostDescription(const Item* item) const
     std::ostringstream oss;
     if (cost.currencyEntry == 0)
     {
-        // Gold
+        // Gold - only show non-zero denominations
         uint32 gold = cost.amount / 10000;
         uint32 silver = (cost.amount % 10000) / 100;
         uint32 copper = cost.amount % 100;
-        oss << gold << "金 " << silver << "银 " << copper << "铜";
+        bool hasPrev = false;
+        if (gold > 0)
+        {
+            oss << gold << "金";
+            hasPrev = true;
+        }
+        if (silver > 0)
+        {
+            if (hasPrev) oss << " ";
+            oss << silver << "银";
+            hasPrev = true;
+        }
+        if (copper > 0)
+        {
+            if (hasPrev) oss << " ";
+            oss << copper << "铜";
+        }
     }
     else
     {
-        // Token
+        // Token - use locale-aware name when player is available
+        std::string tokenName;
         const ItemTemplate* tokenProto = sObjectMgr->GetItemTemplate(cost.currencyEntry);
         if (tokenProto)
         {
+            if (player)
+            {
+                tokenName = ItemNameWithLocale(player, tokenProto, 0);
+            }
+            else
+            {
+                tokenName = tokenProto->Name1;
+            }
+        }
+        if (!tokenName.empty())
+        {
             oss << cost.amount << "x |c";
             oss << std::hex << ItemQualityColors[tokenProto->Quality] << std::dec;
-            oss << "|Hitem:" << cost.currencyEntry << ":0:0:0:0:0:0:0:0:0|h[" << tokenProto->Name1 << "]|h|r";
+            oss << "|Hitem:" << cost.currencyEntry << ":0:0:0:0:0:0:0:0:0|h[" << tokenName << "]|h|r";
         }
         else
             oss << cost.amount << "x 物品(" << cost.currencyEntry << ")";
@@ -308,19 +296,11 @@ void ItemReforge::ChargeReforgeCost(Player* player, const Item* item) const
     if (!item || !IsCostEnabled())
         return;
 
-    const ItemTemplate* proto = item->GetTemplate();
-    if (!proto)
+    uint8 slot = item->GetSlot();
+    if (slot >= MAX_EQUIPMENT_SLOTS)
         return;
 
-    uint32 quality = proto->Quality;
-    if (quality >= MAX_QUALITY_LEVELS)
-        return;
-
-    CostConfig cost = costPerQuality[quality];
-
-    uint32 slotCurrency = GetSlotCurrencyForItem(item);
-    if (slotCurrency != 0)
-        cost.currencyEntry = slotCurrency;
+    CostConfig cost = slotCost[slot];
 
     if (cost.amount <= 0)
         return;

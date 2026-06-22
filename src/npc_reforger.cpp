@@ -51,6 +51,8 @@ private:
                 oss << " [" << ItemReforge::TextRed(sItemReforge->GettextNoItem()) << "]";
             else
             {
+                // Show item icon for equipped slot
+                oss << " " << ItemReforge::ItemIcon(item->GetTemplate());
                 if (sItemReforge->IsAlreadyReforged(item))
                     oss << " [" << ItemReforge::TextRed(sItemReforge->GettextAlreadyReforged()) << "]";
                 else if (!sItemReforge->IsReforgeable(player, item))
@@ -61,7 +63,7 @@ private:
                     // Show cost info if cost is enabled
                     if (sItemReforge->IsCostEnabled())
                     {
-                        std::string costDesc = sItemReforge->GetCostDescription(item);
+                        std::string costDesc = sItemReforge->GetCostDescription(item, player);
                         if (!costDesc.empty())
                             oss << " (" << sItemReforge->GettextCostInfo() << costDesc << ")";
                     }
@@ -97,7 +99,7 @@ private:
         else if (!sItemReforge->CanAffordReforge(player, item))
         {
             std::string msg = sItemReforge->GettextCostInsufficient();
-            std::string costDesc = sItemReforge->GetCostDescription(item);
+            std::string costDesc = sItemReforge->GetCostDescription(item, player);
             if (!costDesc.empty())
                 msg += " " + sItemReforge->GettextCostInfo() + costDesc;
             ItemReforge::SendMessage(player, msg);
@@ -121,7 +123,7 @@ private:
         // Show cost info
         if (sItemReforge->IsCostEnabled())
         {
-            std::string costDesc = sItemReforge->GetCostDescription(item);
+            std::string costDesc = sItemReforge->GetCostDescription(item, player);
             if (!costDesc.empty())
                 AddGossipItemFor(player, GOSSIP_ICON_CHAT, sItemReforge->GettextCostInfo() + costDesc, GOSSIP_SENDER_MAIN + 2, GOSSIP_ACTION_INFO_DEF + 200);
         }
@@ -159,7 +161,7 @@ private:
         oss << sItemReforge->GettextWillTake() << ItemReforge::TextRed(Acore::ToString((uint32)sItemReforge->GetPercentage()) + "%") << " " << sItemReforge->StatTypeToString(stat) << " 中取出";
         if (sItemReforge->IsCostEnabled())
         {
-            std::string costDesc = sItemReforge->GetCostDescription(item);
+            std::string costDesc = sItemReforge->GetCostDescription(item, player);
             if (!costDesc.empty())
                 oss << " (" << sItemReforge->GettextCostInfo() << costDesc << ")";
         }

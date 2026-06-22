@@ -4,6 +4,7 @@
 
 #include "ScriptMgr.h"
 #include "Config.h"
+#include "Player.h"
 #include "item_reforge.h"
 
 class mod_reforging_worldscript : public WorldScript
@@ -25,35 +26,27 @@ public:
         sItemReforge->SetReforgeableStats(sConfigMgr->GetOption<std::string>("Reforging.ReforgeableStats", ItemReforge::DefaultReforgeableStats));
         sItemReforge->SetPercentage(sConfigMgr->GetOption<float>("Reforging.Percentage", ItemReforge::PERCENTAGE_DEFAULT));
 
-        // Cost system
+        // Cost system - per slot
         sItemReforge->SetCostEnabled(sConfigMgr->GetOption<bool>("Reforging.Cost.Enable", false));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_POOR,       sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality0.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality0.Amount", 0));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_NORMAL,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality1.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality1.Amount", 0));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_UNCOMMON,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality2.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality2.Amount", 0));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_RARE,       sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality3.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality3.Amount", 500000));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_EPIC,       sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality4.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality4.Amount", 1000000));
-        sItemReforge->SetQualityCost(ITEM_QUALITY_LEGENDARY,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Quality5.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Quality5.Amount", 2000000));
-
-        // Slot currency overrides
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_HEAD,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Head.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_NECK,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Neck.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_SHOULDERS, sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Shoulders.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_BODY,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Shirt.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_CHEST,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Chest.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_WAIST,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Waist.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_LEGS,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Legs.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_FEET,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Feet.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_WRISTS,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Wrists.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_HANDS,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Hands.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_FINGER1,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Finger.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_FINGER2,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Finger.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_TRINKET1,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Trinket.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_TRINKET2,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Trinket.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_BACK,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Back.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_MAINHAND,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.MainHand.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_OFFHAND,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.OffHand.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_RANGED,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Ranged.Currency", 0));
-        sItemReforge->SetSlotCurrencyOverride(EQUIPMENT_SLOT_TABARD,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Tabard.Currency", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_HEAD,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Head.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Head.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_NECK,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Neck.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Neck.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_SHOULDERS, sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Shoulders.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Shoulders.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_BODY,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Shirt.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Shirt.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_CHEST,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Chest.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Chest.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_WAIST,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Waist.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Waist.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_LEGS,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Legs.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Legs.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_FEET,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Feet.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Feet.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_WRISTS,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Wrists.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Wrists.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_HANDS,     sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Hands.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Hands.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_FINGER1,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Finger1.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Finger1.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_FINGER2,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Finger2.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Finger2.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_TRINKET1,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Trinket1.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Trinket1.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_TRINKET2,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Trinket2.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Trinket2.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_BACK,      sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Back.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Back.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_MAINHAND,  sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.MainHand.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.MainHand.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_OFFHAND,   sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.OffHand.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.OffHand.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_RANGED,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Ranged.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Ranged.Amount", 0));
+        sItemReforge->SetSlotCost(EQUIPMENT_SLOT_TABARD,    sConfigMgr->GetOption<uint32>("Reforging.Cost.Slot.Tabard.Currency", 0), sConfigMgr->GetOption<int32>("Reforging.Cost.Slot.Tabard.Amount", 0));
 
         // Menu text
         sItemReforge->SettextStatsHeader(sConfigMgr->GetOption<std::string>("Reforging.Text.StatsHeader", "可重铸属性: "));

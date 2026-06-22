@@ -31,7 +31,6 @@ private:
     static constexpr const char* RED_COLOR = "b50505";
     static constexpr const char* GREEN_COLOR = "056e3a";
     static constexpr uint32 MAX_REFORGEABLE_STATS = 15;
-    static constexpr uint32 MAX_QUALITY_LEVELS = 6; // 0=poor to 5=legendary
     static constexpr uint32 MAX_EQUIPMENT_SLOTS = 19; // EQUIPMENT_SLOT_START to EQUIPMENT_SLOT_END = 19 slots
     
     bool enabled;
@@ -39,10 +38,8 @@ private:
     std::vector<uint32> reforgeableStats;
     float percentage;
 
-    // Cost per quality: costPerQuality[quality] = CostConfig
-    CostConfig costPerQuality[MAX_QUALITY_LEVELS];
-    // Per-slot currency override (0 = no override, use costPerQuality's currency)
-    uint32 slotCurrencyOverride[MAX_EQUIPMENT_SLOTS];
+    // Cost per slot: slotCost[slot] = CostConfig (currencyEntry + amount)
+    CostConfig slotCost[MAX_EQUIPMENT_SLOTS];
 
     // Menu text strings
     std::string textStatsHeader;
@@ -104,10 +101,8 @@ public:
 
     void SetCostEnabled(bool value);
     bool IsCostEnabled() const;
-    void SetQualityCost(uint32 quality, uint32 currencyEntry, int32 amount);
-    CostConfig GetQualityCost(uint32 quality) const;
-    void SetSlotCurrencyOverride(uint8 slot, uint32 currencyEntry);
-    uint32 GetSlotCurrencyForItem(const Item* item) const;
+    void SetSlotCost(uint8 slot, uint32 currencyEntry, int32 amount);
+    CostConfig GetSlotCost(uint8 slot) const;
 
     // Config text setters/getters
     #define DEFINE_TEXT_ACCESSOR(NAME) \
@@ -156,7 +151,7 @@ public:
     const _ItemStat* FindItemStat(const std::vector<_ItemStat>& stats, uint32 statType) const;
 
     bool CanAffordReforge(Player* player, const Item* item) const;
-    std::string GetCostDescription(const Item* item) const;
+    std::string GetCostDescription(const Item* item, const Player* player = nullptr) const;
     void ChargeReforgeCost(Player* player, const Item* item) const;
 
     bool Reforge(Player* player, ObjectGuid itemGuid, uint32 statDecrease, uint32 statIncrease);
