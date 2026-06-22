@@ -143,6 +143,7 @@ public:
 
     void SetSlotName(uint8 slot, const std::string& name);
     void SetStatTypeName(uint32 statType, const std::string& name);
+    void LoadFromDB();
     std::string GetSlotIcon(uint8 slot, uint32 width = 30, uint32 height = 30, int x = 0, int y = 0) const;
     std::string GetSlotName(uint8 slot) const;
     std::string StatTypeToString(uint32 statType) const;
